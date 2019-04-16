@@ -25,6 +25,10 @@ var employees = [4]model.Employee{
 	model.Employee{ID: "782979", FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
 }
 
+var sex string = "M"
+var limit string = "2"
+var lastid string = "-1"
+
 func Test1(t *testing.T) {
 
 	//load Configuration
@@ -64,7 +68,16 @@ func Test2GetUnknownEmployee(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, response.Code, "Employee not found")
 }
 
-func Test3AddEmployee(t *testing.T) {
+func Test3GetEmptyEmployeesWithPagination(t *testing.T) {
+
+	request, _ := http.NewRequest("GET", "/employee/sex"+sex+"?lastid="+lastid+"&limit="+limit, nil)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+	log.Info("Recieved from sever: ", response.Body)
+	require.Equal(t, http.StatusNotFound, response.Code, "No employees found")
+}
+
+func Test4AddEmployee(t *testing.T) {
 	for _, emp := range employees {
 		jsonEmployee, _ := json.Marshal(emp)
 		request, _ := http.NewRequest("POST", "/employee", bytes.NewBuffer(jsonEmployee))
@@ -74,7 +87,7 @@ func Test3AddEmployee(t *testing.T) {
 	}
 }
 
-func Test4GetEmployee(t *testing.T) {
+func Test5GetEmployee(t *testing.T) {
 	var test model.Employee
 	for _, emp := range employees {
 		request, _ := http.NewRequest("GET", "/employee/"+emp.ID, nil)
@@ -86,6 +99,12 @@ func Test4GetEmployee(t *testing.T) {
 	}
 }
 
-func Test5GetEmployeesWithPagination(t *testing.T) {
+func Test6GetEmployeesWithPagination(t *testing.T) {
+
+	request, _ := http.NewRequest("GET", "/employee/sex"+sex+"?lastid="+lastid+"&limit="+limit, nil)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+	log.Info("Recieved from sever: ", response.Body)
+	require.Equal(t, http.StatusOK, response.Code)
 
 }

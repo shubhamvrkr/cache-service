@@ -36,7 +36,8 @@ func TestDatabaseInsert(t *testing.T) {
 func TestDatabaseReadAll(t *testing.T) {
 	var M map[string]interface{}
 	dbManager.Init(localconfiguration.Database)
-	emps, err := dbManager.Find(M)
+	options := options.FindOptions{}
+	emps, err := dbManager.Find(M, &options)
 	if err != nil {
 		t.Error("Error: ", err)
 	}
@@ -59,7 +60,7 @@ func TestDatabaseReadPagination(t *testing.T) {
 		"Sex": "F",
 	}
 	options := options.FindOptions{}
-	emps, err := dbManager.Find(query, options)
+	emps, err := dbManager.Find(query, &options)
 	if err != nil {
 		t.Error("Error: ", err)
 	}

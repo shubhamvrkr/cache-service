@@ -96,10 +96,11 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 
 //getEmployeeBySex returns employees details based on the sex. (i.e M/F)
 func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
+	var response model.Response
 	vars := mux.Vars(r)
 	sex := vars["sex"]
 	lastid := vars["lastid"]
-	count, err := strconv.Atoi(vars["count"])
+	count, err := strconv.Atoi(vars["limit"])
 	limit := int64(count)
 	if err != nil {
 		log.Error("Error converting count : ", err)
@@ -115,6 +116,35 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	query := bson.M{"Sex": sex, "_id": bson.M{"$gt": lastid}}
 	options := options.FindOptions{}
 	options.Sort = bson.D{{"_id", -1}}
+	options.Projection = bson.D{{"_id", 1}}
 	options.Limit = &limit
 
+	//get only employees ID
+	emps, err := h.dbManager.Find(query, &options)
+	if err != nil {
+		log.Error("Error fetching data from database: ", err)
+		if strings.ContainsAny(err.Error(), "no documents") {
+			http.Error(w, "No employees found", http.StatusNotFound)
+			return
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	response.Employees = *emps
+	response.Next = "http://localhost:"
+	resBytes, err := json.Marshal(response)
+	if err != nil {
+		log.Error("Error marshalling emp: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resBytes)
+}
+
+//FindEmployee finds employee with id in cache, if miss load from db and update cache
+func (h *Handler) FindEmployee(empids []string) *model.Employee {
+	return nil
 }
