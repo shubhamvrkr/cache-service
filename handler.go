@@ -56,21 +56,22 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	employeeID := vars["id"]
+
 	log.Info("EmployeeID: ", employeeID)
 
 	employee, err := h.cacheManager.GetItem(employeeID)
 	if err != nil {
-		//not found or error
+		//case: data not found in cache or some internal error
 		log.Info("Error getting data from cache: ", err)
-		//read from database
+		//get data from database
 		employee, err := h.dbManager.Fetch(bson.M{"_id": employeeID})
 		if err != nil {
 			log.Error("Error fetching data from database: ", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		} else if employee == nil {
-			//data doesnt exits
-			http.Error(w, err.Error(), http.StatusNotFound)
+			//data doesnt exits in database
+			http.Error(w, "Employee not found", http.StatusNotFound)
 			return
 
 		} else {
@@ -95,6 +96,4 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	sex := vars["sex"]
 	log.Info("Sex: ", sex)
 
-	w.WriteHeader(http.StatusNotFound)
-	w.WriteHeader(http.StatusOK)
 }
