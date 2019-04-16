@@ -18,21 +18,21 @@ var format = logging.MustStringFormatter(
 
 //env variable
 var (
-	databaseHost             = "DATABASE_HOST"
-	databasePort             = "DATABASE_PORT"
-	databaseUsername         = "DATABASE_USER"
-	databasePassword         = "DATABASE_PASS"
-	serverPort               = "SERVER_PORT"
-	databaseName             = "DATABASE_NAME"
-	cacheMem                 = "CACHE_MEM"
-	cacheReplacementStatergy = "CACHE_CRS"
+	databaseHost     = "DATABASE_HOST"
+	databasePort     = "DATABASE_PORT"
+	databaseUsername = "DATABASE_USER"
+	databasePassword = "DATABASE_PASS"
+	serverPort       = "SERVER_PORT"
+	databaseName     = "DATABASE_NAME"
+	cacheMem         = "CACHE_MEM"
 )
 
 //Manager loads the configuration from specfied yaml configfile
 //Incase environment flags are set for the configuration, environment variables overrides file configuration
 type Manager struct {
 	//File path of configuration yaml
-	configfile    string
+	configfile string
+
 	configuration Configuration
 }
 
@@ -123,12 +123,6 @@ func (m *Manager) Load(filepath string, configtype string) (*Configuration, erro
 		configuration.Cache.Memory = mem
 	}
 
-	//check cache memory
-	val, ok = os.LookupEnv(cacheReplacementStatergy)
-	if ok {
-		configuration.Cache.CRS = val
-	}
-
 	log.Info("Database Configuration")
 	log.Info("Host: ", configuration.Database.Host)
 	log.Info("Port: ", configuration.Database.Port)
@@ -136,7 +130,6 @@ func (m *Manager) Load(filepath string, configtype string) (*Configuration, erro
 	log.Info("Password: ", configuration.Database.Password)
 	log.Info("Cache Configuration")
 	log.Info("Memory: ", configuration.Cache.Memory)
-	log.Info("Replacement Algo: ", configuration.Cache.CRS)
 	log.Info("Server Configuration")
 	log.Info("Port: ", configuration.Server.Port)
 	fmt.Println()

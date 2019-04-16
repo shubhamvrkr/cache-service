@@ -45,6 +45,7 @@ func main() {
 	r := mux.NewRouter()
 	//declare routes
 	r.HandleFunc("/employee", h.addEmployee).Methods("POST")
+	r.HandleFunc("/employee/proto", h.addEmployeeProto).Methods("POST")
 	r.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
 	r.HandleFunc("/employee/{sex}/sex", h.getEmployeeBySex).Methods("GET")
 

@@ -7,7 +7,6 @@ database:
 
 cache:
   memory: 256
-  crs:  "LRU"
 
 server:
   port: 8080

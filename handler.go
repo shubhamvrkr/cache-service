@@ -26,12 +26,11 @@ func (h *Handler) addEmployee(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&employee); err != nil {
 		log.Error("Error decoding employee: ", err)
-		http.Error(w, "Invalid request payload",
-			http.StatusBadRequest)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
-	log.Info("employee: ", employee)
+
 	//save to database
 	//update cache
 
