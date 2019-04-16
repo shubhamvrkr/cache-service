@@ -51,16 +51,26 @@ func (h *Handler) addEmployee(w http.ResponseWriter, r *http.Request) {
 
 //getEmployeeByID returns the employee details. First it checks in the cache and the in the dataabase if cache miss
 func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
+	var employee *model.Employee
+
 	vars := mux.Vars(r)
 	employeeID := vars["id"]
 	log.Info("EmployeeID: ", employeeID)
 
-	//find in cache
-	//get from database
-	//update cache
-	w.WriteHeader(http.StatusNotFound)
+	employee, err := h.cacheManager.GetItem(employeeID)
+	if err != nil {
+		//not found or error
+		log.Info("Error getting data from cache: ", err)
+	}
+	empBytes, err := json.Marshal(employee)
+	if err != nil {
+		log.Error("Error marshalling emp: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
-
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(empBytes)
 }
 
 //getEmployeeBySex returns employees details based on the sex. (i.e M/F)

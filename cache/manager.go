@@ -53,9 +53,6 @@ func (m *Manager) GetItem(ID string) (*model.Employee, error) {
 		log.Error("Error cache get: ", err)
 		return nil, err
 	}
-	if b == nil {
-		return nil, nil
-	}
 	err = json.Unmarshal(b, &employee)
 	if err != nil {
 		fmt.Println("Error unmarshalling employee:", err)
