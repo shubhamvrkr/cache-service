@@ -129,8 +129,13 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error("Error fetching data from database: ", err)
 		if strings.ContainsAny(err.Error(), "no documents") {
-			http.Error(w, "No employees found", http.StatusNotFound)
+			response.Employees = []model.Employee{}
+			resBytes,_ := json.Marshal(response)
+			w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(resBytes)
 			return
+
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -154,15 +159,17 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 //FindEmployee finds employee with id in cache, if miss load from db and update cache
 func (h *Handler) FindEmployee(empids []int32) *[]model.Employee {
 	var employees []model.Employee
+	var emp *model.Employee
+	var err error
 	for _, empid := range empids {
-		employee, err := h.cacheManager.GetItem(empid)
+		emp, err = h.cacheManager.GetItem(empid)
 		if err != nil {
 			//case: data not found in cache or some internal error
 			log.Info("Data not found in cache: ", err)
-			employee, _ := h.dbManager.Fetch(bson.M{"_id": empid})
-			h.cacheManager.AddItem(*employee)
+			emp, _ = h.dbManager.Fetch(bson.M{"_id": empid})
+			h.cacheManager.AddItem(*emp)
 		}
-		employees = append(employees, *employee)
+		employees = append(employees, *emp)
 	}
 	return &employees
 }
