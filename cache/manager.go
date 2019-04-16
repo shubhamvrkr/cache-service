@@ -24,10 +24,11 @@ type Manager struct {
 }
 
 //Init intializes cache configuration and allocates memory for cache items
-func (m *Manager) Init(cacheconfig config.CacheConfiguration) {
+func (m *Manager) Init(cacheconfig config.CacheConfiguration) error {
 	m.cacheconfig = cacheconfig
 	m.cache = freecache.NewCache(m.cacheconfig.Memory * 1024 * 1024)
 	debug.SetGCPercent(10)
+	return nil
 }
 
 //AddItem adds the item into the cache

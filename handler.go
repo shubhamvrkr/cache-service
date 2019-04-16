@@ -75,8 +75,8 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 			//add data to cache
+			h.cacheManager.AddItem(*employee)
 		}
-
 	}
 	empBytes, err := json.Marshal(employee)
 	if err != nil {
