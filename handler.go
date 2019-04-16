@@ -9,6 +9,7 @@ import (
 	"./database"
 	"./model"
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 //Handler handles all the API functionalities
@@ -61,6 +62,21 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		//not found or error
 		log.Info("Error getting data from cache: ", err)
+		//read from database
+		employee, err := h.dbManager.Fetch(bson.M{"_id": employeeID})
+		if err != nil {
+			log.Error("Error fetching data from database: ", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		} else if employee == nil {
+			//data doesnt exits
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+
+		} else {
+			//add data to cache
+		}
+
 	}
 	empBytes, err := json.Marshal(employee)
 	if err != nil {
