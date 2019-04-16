@@ -13,7 +13,7 @@ import (
 	"./database"
 	"./model"
 	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var router *mux.Router
@@ -55,10 +55,37 @@ func Test1(t *testing.T) {
 	router = LoadRouter(h)
 }
 
-func TestAddEmployee(t *testing.T) {
-	jsonEmployee, _ := json.Marshal(employees[0])
-	request, _ := http.NewRequest("POST", "/employee", bytes.NewBuffer(jsonEmployee))
+func Test2GetUnknownEmployee(t *testing.T) {
+	unknownID := "0372097"
+	request, _ := http.NewRequest("GET", "/employee/"+unknownID, nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
-	assert.Equal(t, http.StatusCreated, response.Code, "Employee saved successfully")
+	log.Info("Recieved from sever: ", response.Body)
+	require.Equal(t, http.StatusNotFound, response.Code, "Employee not found")
+}
+
+func Test3AddEmployee(t *testing.T) {
+	for _, emp := range employees {
+		jsonEmployee, _ := json.Marshal(emp)
+		request, _ := http.NewRequest("POST", "/employee", bytes.NewBuffer(jsonEmployee))
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		require.Equal(t, http.StatusCreated, response.Code, "Employee saved successfully")
+	}
+}
+
+func Test4GetEmployee(t *testing.T) {
+	var test model.Employee
+	for _, emp := range employees {
+		request, _ := http.NewRequest("GET", "/employee/"+emp.ID, nil)
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		log.Info("Recieved from sever: ", response.Body)
+		json.Unmarshal(response.Body.Bytes(), &test)
+		require.Equal(t, emp, test)
+	}
+}
+
+func Test5GetEmployeesWithPagination(t *testing.T) {
+
 }

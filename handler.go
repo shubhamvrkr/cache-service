@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"./cache"
 	"./database"
 	"./model"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 //Handler handles all the API functionalities
@@ -67,12 +70,13 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 		employee, err := h.dbManager.Fetch(bson.M{"_id": employeeID})
 		if err != nil {
 			log.Error("Error fetching data from database: ", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		} else if employee == nil {
-			//data doesnt exits in database
-			http.Error(w, "Employee not found", http.StatusNotFound)
-			return
+			if strings.ContainsAny(err.Error(), "no documents") {
+				http.Error(w, "Employee not found", http.StatusNotFound)
+				return
+			} else {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 
 		} else {
 			//add data to cache
@@ -94,6 +98,23 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sex := vars["sex"]
+	lastid := vars["lastid"]
+	count, err := strconv.Atoi(vars["count"])
+	limit := int64(count)
+	if err != nil {
+		log.Error("Error converting count : ", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	log.Info("Sex: ", sex)
+	log.Info("Lastid: ", lastid)
+	log.Info("Limit: ", limit)
+
+	//prepare query
+	query := bson.M{"Sex": sex, "_id": bson.M{"$gt": lastid}}
+	options := options.FindOptions{}
+	options.Sort = bson.D{{"_id", -1}}
+	options.Limit = &limit
 
 }

@@ -86,11 +86,11 @@ func (m *Manager) Fetch(filter map[string]interface{}) (*model.Employee, error) 
 }
 
 //Find retrieves objects from database by query criteria
-func (m *Manager) Find(filter map[string]interface{}) (*[]model.Employee, error) {
+func (m *Manager) Find(filter map[string]interface{}, opt *options.FindOptions) (*[]model.Employee, error) {
 	var employees []model.Employee
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	cur, err := m.collection.Find(ctx, filter)
+	cur, err := m.collection.Find(ctx, filter, opt)
 	if err != nil {
 		log.Error("Error finding elements: ", err)
 		return nil, err

@@ -7,6 +7,7 @@ import (
 	"../model"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var dbManager Manager
@@ -57,7 +58,8 @@ func TestDatabaseReadPagination(t *testing.T) {
 	query := bson.M{
 		"Sex": "F",
 	}
-	emps, err := dbManager.Find(query)
+	options := options.FindOptions{}
+	emps, err := dbManager.Find(query, options)
 	if err != nil {
 		t.Error("Error: ", err)
 	}

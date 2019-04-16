@@ -60,6 +60,6 @@ func LoadRouter(h Handler) *mux.Router {
 	//declare routes
 	router.HandleFunc("/employee", h.addEmployee).Methods("POST")
 	router.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
-	router.HandleFunc("/employee/{sex}/sex", h.getEmployeeBySex).Methods("GET")
+	router.Path("/employee/sex/{sex}").Queries("lastid", "{lastid}").Queries("count", "{count}").HandlerFunc(h.getEmployeeBySex).Methods("GET")
 	return router
 }
