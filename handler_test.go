@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 
 	"./cache"
@@ -19,10 +20,10 @@ import (
 var router *mux.Router
 
 var employees = [4]model.Employee{
-	model.Employee{ID: "782976", FirstName: "Mike", LastName: "Yale", Age: 25, Sex: "M"},
-	model.Employee{ID: "782977", FirstName: "Tim", LastName: "Kane", Age: 29, Sex: "F"},
-	model.Employee{ID: "782978", FirstName: "Alice", LastName: "Jane", Age: 28, Sex: "M"},
-	model.Employee{ID: "782979", FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
+	model.Employee{ID: 782976, FirstName: "Mike", LastName: "Yale", Age: 25, Sex: "M"},
+	model.Employee{ID: 782977, FirstName: "Tim", LastName: "Kane", Age: 29, Sex: "F"},
+	model.Employee{ID: 782978, FirstName: "Alice", LastName: "Jane", Age: 28, Sex: "M"},
+	model.Employee{ID: 782979, FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
 }
 
 var sex string = "M"
@@ -60,7 +61,7 @@ func Test1(t *testing.T) {
 }
 
 func Test2GetUnknownEmployee(t *testing.T) {
-	unknownID := "0372097"
+	unknownID := "324234"
 	request, _ := http.NewRequest("GET", "/employee/"+unknownID, nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
@@ -90,7 +91,7 @@ func Test4AddEmployee(t *testing.T) {
 func Test5GetEmployee(t *testing.T) {
 	var test model.Employee
 	for _, emp := range employees {
-		request, _ := http.NewRequest("GET", "/employee/"+emp.ID, nil)
+		request, _ := http.NewRequest("GET", "/employee/"+strconv.Itoa(int(emp.ID)), nil)
 		response := httptest.NewRecorder()
 		router.ServeHTTP(response, request)
 		log.Info("Recieved from sever: ", response.Body)
@@ -101,7 +102,7 @@ func Test5GetEmployee(t *testing.T) {
 
 func Test6GetEmployeesWithPagination(t *testing.T) {
 
-	request, _ := http.NewRequest("GET", "/employee/?sex="+sex+"&lastid="+lastid+"&limit="+limit, nil)
+	request, _ := http.NewRequest("GET", "/employee?sex="+sex+"&lastid="+lastid+"&limit="+limit, nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 	log.Info("Recieved from sever: ", response.Body)

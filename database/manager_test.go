@@ -59,7 +59,7 @@ func TestDatabaseReadPagination(t *testing.T) {
 	limit := int64(2)
 	query := bson.M{"Sex": "M", "_id": bson.M{"$gt": -1}}
 	options := options.FindOptions{}
-	options.Sort = bson.M{"_id": -1}
+	options.Sort = bson.M{"_id": 1}
 	options.Projection = bson.M{"_id": 1}
 	options.Limit = &limit
 

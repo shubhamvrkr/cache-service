@@ -58,11 +58,16 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 	var employee *model.Employee
 
 	vars := mux.Vars(r)
-	employeeID := vars["id"]
+	employeeID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Error("Error covnerting query params: ", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	log.Info("EmployeeID: ", employeeID)
 
-	employee, err := h.cacheManager.GetItem(employeeID)
+	employee, err = h.cacheManager.GetItem(int32(employeeID))
 	if err != nil {
 		//case: data not found in cache or some internal error
 		log.Info("Error getting data from cache: ", err)
@@ -132,8 +137,9 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//need to check if this is last page
-	response.Employees = *emps
-	response.Next = "/employee/sex/" + sex + "?lastid=" + response.Employees[len(response.Employees)-1].ID + "&limit=" + strconv.Itoa(int(limit))
+	employees := h.FindEmployee(*emps)
+	response.Employees = *employees
+	response.Next = "/employee/sex/" + sex + "?lastid=" + strconv.Itoa(int(response.Employees[len(response.Employees)-1].ID)) + "&limit=" + strconv.Itoa(int(limit))
 	resBytes, err := json.Marshal(response)
 	if err != nil {
 		log.Error("Error marshalling emp: ", err)
@@ -146,6 +152,17 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 }
 
 //FindEmployee finds employee with id in cache, if miss load from db and update cache
-func (h *Handler) FindEmployee(empids []string) *model.Employee {
-	return nil
+func (h *Handler) FindEmployee(empids []int32) *[]model.Employee {
+	var employees []model.Employee
+	for _, empid := range empids {
+		employee, err := h.cacheManager.GetItem(empid)
+		if err != nil {
+			//case: data not found in cache or some internal error
+			log.Info("Data not found in cache: ", err)
+			employee, _ := h.dbManager.Fetch(bson.M{"_id": empid})
+			h.cacheManager.AddItem(*employee)
+		}
+		employees = append(employees, *employee)
+	}
+	return &employees
 }
