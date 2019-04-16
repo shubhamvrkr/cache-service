@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 
+	"./cache"
 	"./config"
 	"./database"
 	"github.com/gorilla/mux"
@@ -21,12 +22,11 @@ func main() {
 
 	//load Configuration
 	var configManager config.Manager
-	configuration, err := configManager.Load("", "yaml")
+	configuration, err := configManager.Load("./config.yml", "yaml")
 	if err != nil {
 		log.Error("Error while loading configuration: ", err)
 		os.Exit(3)
 	}
-
 	//Load database manager
 	var dbManager database.Manager
 	err = dbManager.Init(configuration.Database)
@@ -36,19 +36,30 @@ func main() {
 	}
 
 	//Load cache manager
+	var cacheManager cache.Manager
+	err = cacheManager.Init(configuration.Cache)
+	if err != nil {
+		log.Error("Error while loading cache manager: ", err)
+		os.Exit(3)
+	}
 
 	//handler for API
 	var h Handler
-	h.Init(dbManager)
+	h.Init(dbManager, cacheManager)
 
 	// Declare a new router
-	r := mux.NewRouter()
-	//declare routes
-	r.HandleFunc("/employee", h.addEmployee).Methods("POST")
-	r.HandleFunc("/employee/proto", h.addEmployeeProto).Methods("POST")
-	r.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
-	r.HandleFunc("/employee/{sex}/sex", h.getEmployeeBySex).Methods("GET")
+	r := LoadRouter(h)
 
 	http.ListenAndServe(":"+strconv.Itoa(configuration.Server.Port), r)
 	log.Info("Server runnning on port: ", strconv.Itoa(configuration.Server.Port))
+}
+
+//LoadRouter returns a router instance
+func LoadRouter(h Handler) *mux.Router {
+	router := mux.NewRouter()
+	//declare routes
+	router.HandleFunc("/employee", h.addEmployee).Methods("POST")
+	router.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
+	router.HandleFunc("/employee/{sex}/sex", h.getEmployeeBySex).Methods("GET")
+	return router
 }

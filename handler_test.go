@@ -5,12 +5,18 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
+	"./cache"
+	"./config"
+	"./database"
 	"./model"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
+
+var router *mux.Router
 
 var employees = [4]model.Employee{
 	model.Employee{ID: "782976", FirstName: "Mike", LastName: "Yale", Age: 25, Sex: "M"},
@@ -19,26 +25,40 @@ var employees = [4]model.Employee{
 	model.Employee{ID: "782979", FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
 }
 
-func Router() *mux.Router {
+func Test1(t *testing.T) {
 
+	//load Configuration
+	var configManager config.Manager
+	configuration, err := configManager.Load("./config.yml", "yaml")
+	if err != nil {
+		log.Error("Error while loading configuration: ", err)
+		os.Exit(3)
+	}
+	//Load database manager
+	var dbManager database.Manager
+	err = dbManager.Init(configuration.Database)
+	if err != nil {
+		log.Error("Error while loading database manager: ", err)
+		os.Exit(3)
+	}
+	//Load cache manager
+	var cacheManager cache.Manager
+	err = cacheManager.Init(configuration.Cache)
+	if err != nil {
+		log.Error("Error while loading cache manager: ", err)
+		os.Exit(3)
+	}
+	//handler for API
 	var h Handler
-
-	r := mux.NewRouter()
-
-	//declare routes
-	r.HandleFunc("/employee", h.addEmployee).Methods("POST")
-	r.HandleFunc("/employee/proto", h.addEmployeeProto).Methods("POST")
-	r.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
-	r.HandleFunc("/employee/{sex}/sex", h.getEmployeeBySex).Methods("GET")
-	return r
-
+	h.Init(dbManager, cacheManager)
+	// Declare a new router
+	router = LoadRouter(h)
 }
 
 func TestAddEmployee(t *testing.T) {
-
 	jsonEmployee, _ := json.Marshal(employees[0])
 	request, _ := http.NewRequest("POST", "/employee", bytes.NewBuffer(jsonEmployee))
 	response := httptest.NewRecorder()
-	Router().ServeHTTP(response, request)
+	router.ServeHTTP(response, request)
 	assert.Equal(t, http.StatusCreated, response.Code, "Employee saved successfully")
 }
