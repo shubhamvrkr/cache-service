@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime/debug"
+	"strconv"
 
 	"../config"
 	"../model"
@@ -38,7 +39,7 @@ func (m *Manager) AddItem(employee model.Employee) error {
 		log.Error("Error marshalling employee: ", err)
 		return err
 	}
-	err = m.cache.Set([]byte(employee.ID), b, 0)
+	err = m.cache.Set([]byte(strconv.Itoa(int(employee.ID))), b, 0)
 	if err != nil {
 		log.Error("Error cache set: ", err)
 		return err
@@ -47,9 +48,9 @@ func (m *Manager) AddItem(employee model.Employee) error {
 }
 
 //GetItem gets the item from the cache
-func (m *Manager) GetItem(ID string) (*model.Employee, error) {
+func (m *Manager) GetItem(ID int32) (*model.Employee, error) {
 	var employee model.Employee
-	b, err := m.cache.Get([]byte(ID))
+	b, err := m.cache.Get([]byte(strconv.Itoa(int(ID))))
 	if err != nil {
 		log.Error("Error cache get: ", err)
 		return nil, err

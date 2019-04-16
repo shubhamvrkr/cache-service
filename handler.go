@@ -99,7 +99,7 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	var response model.Response
 	vars := mux.Vars(r)
 	sex := vars["sex"]
-	lastid := vars["lastid"]
+	lastid, err := strconv.Atoi(vars["lastid"])
 	count, err := strconv.Atoi(vars["limit"])
 	limit := int64(count)
 	if err != nil {
@@ -115,12 +115,12 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	//prepare query
 	query := bson.M{"Sex": sex, "_id": bson.M{"$gt": lastid}}
 	options := options.FindOptions{}
-	options.Sort = bson.D{{"_id", -1}}
-	options.Projection = bson.D{{"_id", 1}}
+	options.Sort = bson.M{"_id": 1}
+	options.Projection = bson.M{"_id": 1}
 	options.Limit = &limit
 
 	//get only employees ID
-	emps, err := h.dbManager.Find(query, &options)
+	emps, err := h.dbManager.FindEmployeeIds(query, &options)
 	if err != nil {
 		log.Error("Error fetching data from database: ", err)
 		if strings.ContainsAny(err.Error(), "no documents") {
@@ -131,8 +131,9 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	//need to check if this is last page
 	response.Employees = *emps
-	response.Next = "http://localhost:"
+	response.Next = "/employee/sex/" + sex + "?lastid=" + response.Employees[len(response.Employees)-1].ID + "&limit=" + strconv.Itoa(int(limit))
 	resBytes, err := json.Marshal(response)
 	if err != nil {
 		log.Error("Error marshalling emp: ", err)

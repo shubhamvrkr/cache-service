@@ -81,7 +81,7 @@ func (m *Manager) Fetch(filter map[string]interface{}) (*model.Employee, error) 
 		log.Error("Error fetching element: ", err)
 		return nil, err
 	}
-	employee = model.Employee{ID: e["_id"].(string), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)}
+	employee = model.Employee{ID: e["_id"].(int32), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)}
 	return &employee, nil
 }
 
@@ -104,11 +104,38 @@ func (m *Manager) Find(filter map[string]interface{}, opt *options.FindOptions) 
 			log.Error("Error decoding object: ", err)
 		}
 		log.Info("E: ", e)
-		employees = append(employees, model.Employee{ID: e["_id"].(string), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)})
+		employees = append(employees, model.Employee{ID: e["_id"].(int32), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)})
 	}
 	if err := cur.Err(); err != nil {
 		log.Error("Error database cursor : ", err)
 		return nil, err
 	}
 	return &employees, nil
+}
+
+func (m *Manager) FindEmployeeIds(filter map[string]interface{}, opt *options.FindOptions) (*[]int32, error) {
+	var employeesids []int32
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	cur, err := m.collection.Find(ctx, filter, opt)
+	if err != nil {
+		log.Error("Error finding elements: ", err)
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	for cur.Next(ctx) {
+
+		var e bson.M
+		err := cur.Decode(&e)
+		if err != nil {
+			log.Error("Error decoding object: ", err)
+		}
+		log.Info("E: ", e)
+		employeesids = append(employeesids, e["_id"].(int32))
+	}
+	if err := cur.Err(); err != nil {
+		log.Error("Error database cursor : ", err)
+		return nil, err
+	}
+	return &employeesids, nil
 }

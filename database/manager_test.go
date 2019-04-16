@@ -13,10 +13,10 @@ import (
 var dbManager Manager
 
 var employees = [4]model.Employee{
-	model.Employee{ID: "782976", FirstName: "Mike", LastName: "Yale", Age: 25, Sex: "M"},
-	model.Employee{ID: "782977", FirstName: "Tim", LastName: "Kane", Age: 29, Sex: "F"},
-	model.Employee{ID: "782978", FirstName: "Alice", LastName: "Jane", Age: 28, Sex: "M"},
-	model.Employee{ID: "782979", FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
+	model.Employee{ID: 782976, FirstName: "Mike", LastName: "Yale", Age: 25, Sex: "M"},
+	model.Employee{ID: 782977, FirstName: "Tim", LastName: "Kane", Age: 29, Sex: "F"},
+	model.Employee{ID: 782978, FirstName: "Alice", LastName: "Jane", Age: 28, Sex: "M"},
+	model.Employee{ID: 782979, FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
 }
 
 var localconfiguration = &config.Configuration{
@@ -47,7 +47,7 @@ func TestDatabaseReadAll(t *testing.T) {
 }
 
 func TestDatabaseRead(t *testing.T) {
-	emp, err := dbManager.Fetch(bson.M{"_id": "782976"})
+	emp, err := dbManager.Fetch(bson.M{"_id": 782976})
 	if err != nil {
 		t.Error("Error: ", err)
 	}
@@ -56,16 +56,16 @@ func TestDatabaseRead(t *testing.T) {
 
 func TestDatabaseReadPagination(t *testing.T) {
 
-	query := bson.M{
-		"Sex": "F",
-	}
+	limit := int64(2)
+	query := bson.M{"Sex": "M", "_id": bson.M{"$gt": -1}}
 	options := options.FindOptions{}
-	emps, err := dbManager.Find(query, &options)
+	options.Sort = bson.M{"_id": -1}
+	options.Projection = bson.M{"_id": 1}
+	options.Limit = &limit
+
+	emps, err := dbManager.FindEmployeeIds(query, &options)
 	if err != nil {
 		t.Error("Error: ", err)
 	}
-	require.Equal(t, 1, len(*emps))
-	for _, emp := range *emps {
-		require.Equal(t, employees[1], emp)
-	}
+	require.Equal(t, 2, len(*emps))
 }

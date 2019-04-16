@@ -70,7 +70,7 @@ func Test2GetUnknownEmployee(t *testing.T) {
 
 func Test3GetEmptyEmployeesWithPagination(t *testing.T) {
 
-	request, _ := http.NewRequest("GET", "/employee/sex"+sex+"?lastid="+lastid+"&limit="+limit, nil)
+	request, _ := http.NewRequest("GET", "/employee/?sex="+sex+"&lastid="+lastid+"&limit="+limit, nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 	log.Info("Recieved from sever: ", response.Body)
@@ -101,7 +101,7 @@ func Test5GetEmployee(t *testing.T) {
 
 func Test6GetEmployeesWithPagination(t *testing.T) {
 
-	request, _ := http.NewRequest("GET", "/employee/sex"+sex+"?lastid="+lastid+"&limit="+limit, nil)
+	request, _ := http.NewRequest("GET", "/employee/?sex="+sex+"&lastid="+lastid+"&limit="+limit, nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 	log.Info("Recieved from sever: ", response.Body)
