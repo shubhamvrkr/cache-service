@@ -180,8 +180,9 @@ func (h *Handler) FindEmployee(empids []int32) *[]model.Employee {
 	return &employees
 }
 
-//ReloadCache sends an event to kafka brokers, the event is recieved by a listiner and reload the cache
-func (h *Handler) ReloadCache(w http.ResponseWriter, r *http.Request) {
+//TriggerReloadEvent sends an event to rabbit brokers, the event is recieved by a listiner and reload the cache
+func (h *Handler) TriggerReloadEvent(w http.ResponseWriter, r *http.Request) {
+	log.Info("Trigger called")
 	msg := "reload"
 	err := h.mqManager.Publish(msg)
 	if err != nil {
@@ -191,4 +192,9 @@ func (h *Handler) ReloadCache(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("Sucessfully triggered reload"))
+}
+
+//ReloadCache prepolulates cache with the data from the database
+func (h *Handler) ReloadCache() {
+	log.Info("Reloading cache data")
 }

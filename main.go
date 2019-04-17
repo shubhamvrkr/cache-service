@@ -59,11 +59,17 @@ func main() {
 	r := LoadRouter(h)
 	handler := cors.Default().Handler(r)
 
-	msgs := mqManager.Consume()
-	select {
-	case msg := <-msgs:
-		log.Info("Recieved: ", string(msg.Body))
-	}
+	//Listens for the trigger from messaging queue
+	go func() {
+		msgs := mqManager.Consume()
+		for {
+			select {
+			case msg := <-msgs:
+				log.Info("Recieved event: ", string(msg.Body))
+				h.ReloadCache()
+			}
+		}
+	}()
 
 	log.Info("Server runnning on port: ", strconv.Itoa(configuration.Server.Port))
 	http.ListenAndServe(":"+strconv.Itoa(configuration.Server.Port), handler)
@@ -76,7 +82,7 @@ func LoadRouter(h Handler) *mux.Router {
 	//declare routes
 	router.HandleFunc("/employee", h.AddEmployee).Methods("POST")
 	router.HandleFunc("/employee/{id}", h.GetEmployeeByID).Methods("GET")
-	router.HandleFunc("/reload", h.ReloadCache).Methods("GET")
+	router.HandleFunc("/reload", h.TriggerReloadEvent).Methods("GET")
 	router.Path("/employee").Queries("sex", "{sex}").Queries("lastid", "{lastid}").Queries("limit", "{limit}").HandlerFunc(h.GetEmployeeBySex).Methods("GET")
 	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("./dist")))
 	router.PathPrefix("/swaggerui/").Handler(sh)

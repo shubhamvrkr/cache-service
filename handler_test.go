@@ -119,3 +119,12 @@ func Test6GetEmployeesWithPagination(t *testing.T) {
 	require.Equal(t, http.StatusOK, response.Code)
 
 }
+
+func Test7TriggerReload(t *testing.T) {
+
+	request, _ := http.NewRequest("GET", "/reload", nil)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+	require.Equal(t, http.StatusOK, response.Code)
+
+}
