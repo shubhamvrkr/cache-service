@@ -7,10 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"./cache"
-	"./database"
-	"./messagingqueue"
-	"./model"
+	"cacheservice/cache"
+	"cacheservice/database"
+	"cacheservice/messagingqueue"
+	"cacheservice/model"
+
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"

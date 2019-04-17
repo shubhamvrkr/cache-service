@@ -6,8 +6,9 @@ import (
 	"runtime/debug"
 	"strconv"
 
-	"../config"
-	"../model"
+	"cacheservice/config"
+	"cacheservice/model"
+
 	"github.com/coocood/freecache"
 	"github.com/op/go-logging"
 )

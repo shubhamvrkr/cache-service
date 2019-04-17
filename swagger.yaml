@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  description: A in memory cache layer implementation using mongo DB for data persistence and demonstration of pagination
+  description: In memory cache layer implementation using mongo DB for data persistence and demonstration of pagination
   version: 1.0.0
   title: A Cache Service
   contact:
@@ -9,7 +9,7 @@ host: 'localhost:8080'
 basePath: /
 tags:
   - name: Employee
-    description: REST API about employee
+    description: REST API's about employee
 schemes:
   - http
 paths:
@@ -17,8 +17,8 @@ paths:
     post:
       tags:
         - Employee
-      summary: Add new employee in cache
-      description: API adds new employee in the cache memory and also saves it in persistent store
+      summary: Add new employee
+      description: Adds new employee in the cache memory and also saves it in persistent store
       operationId: addEmployee
       consumes:
         - application/json

@@ -3,8 +3,9 @@ package cache
 import (
 	"testing"
 
-	"../config"
-	"../model"
+	"cacheservice/config"
+	"cacheservice/model"
+
 	"github.com/stretchr/testify/require"
 )
 

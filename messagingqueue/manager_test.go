@@ -3,7 +3,8 @@ package messagingqueue
 import (
 	"testing"
 
-	"../config"
+	"cacheservice/config"
+
 	"github.com/stretchr/testify/require"
 )
 

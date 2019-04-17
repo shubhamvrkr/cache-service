@@ -3,7 +3,8 @@ package messagingqueue
 import (
 	"strconv"
 
-	"../config"
+	"cacheservice/config"
+
 	"github.com/op/go-logging"
 	"github.com/streadway/amqp"
 )
@@ -34,7 +35,7 @@ func (m *Manager) Init(messagequeue config.MessageQueueConfiguration) error {
 		conn, err = connector.Connect("amqp://" + m.messagequeue.Host + ":" + strconv.Itoa(m.messagequeue.Port))
 	}
 	if err != nil {
-		log.Info("Error intializing database manager: ", err)
+		log.Info("Error intializing messaging queue: ", err)
 		return err
 	}
 	m.conn = conn

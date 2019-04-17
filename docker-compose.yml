@@ -1,11 +1,19 @@
 version: '3'
+
 services:
+
   rabbitmq:
     container_name: "rabbitmq"
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
   mongo:
     image: mongo:4.1
     container_name: "mongo"
@@ -14,3 +22,25 @@ services:
       - MONGO_LOG_DIR=/dev/null
     ports:
       - "27017:27017"
+
+  cache-service:
+    image: shubhamvrke/cache-service:1.0
+    container_name: "cache-service"
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    environment:
+      - DATABASE_HOST=mongo
+      - DATABASE_PORT=27017
+      # - DATABASE_USER=
+      # - DATABASE_PASS=
+      - DATABASE_NAME=mydatabase
+      - CACHE_MEM=256
+      - MQ_HOST=rabbitmq
+      - MQ_PORT=5672
+      # - MQ_USERNAME=
+      # - MQ_PASSWORD=
+      - MQ_QUEUE=events
+    depends_on:
+      - rabbitmq
+      - mongo

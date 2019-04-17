@@ -51,7 +51,6 @@ func (m *Manager) Load(filepath string, configtype string) (*Configuration, erro
 	if len(filepath) == 0 {
 		//default location of configuration file
 		m.configfile = "../config.yml"
-		viper.AddConfigPath(".")
 
 	} else {
 		//set the custom file path

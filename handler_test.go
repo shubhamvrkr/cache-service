@@ -9,11 +9,12 @@ import (
 	"strconv"
 	"testing"
 
-	"./cache"
-	"./config"
-	"./database"
-	"./messagingqueue"
-	"./model"
+	"cacheservice/cache"
+	"cacheservice/config"
+	"cacheservice/database"
+	"cacheservice/messagingqueue"
+	"cacheservice/model"
+
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
 )

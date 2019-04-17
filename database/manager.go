@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"../config"
-	"../model"
+	"cacheservice/config"
+	"cacheservice/model"
+
 	"github.com/op/go-logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

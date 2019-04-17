@@ -3,8 +3,9 @@ package database
 import (
 	"testing"
 
-	"../config"
-	"../model"
+	"cacheservice/config"
+	"cacheservice/model"
+
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"

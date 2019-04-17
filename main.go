@@ -5,10 +5,11 @@ import (
 	"os"
 	"strconv"
 
-	"./cache"
-	"./config"
-	"./database"
-	"./messagingqueue"
+	"cacheservice/cache"
+	"cacheservice/config"
+	"cacheservice/database"
+	"cacheservice/messagingqueue"
+
 	"github.com/gorilla/mux"
 	logging "github.com/op/go-logging"
 	"github.com/rs/cors"
