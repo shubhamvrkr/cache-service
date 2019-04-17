@@ -24,7 +24,7 @@ func (c *Connector) Connect(uri string) (*amqp.Connection, error) {
 }
 
 //Retry retries connection to mongoDB
-func (c *Connector) Retry() (*amqp.Connectiont, error) {
+func (c *Connector) Retry() (*amqp.Connection, error) {
 
 	conn, err := amqp.Dial(c.uri)
 	if err != nil {

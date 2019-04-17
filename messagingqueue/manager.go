@@ -1,16 +1,11 @@
 package messagingqueue
 
 import (
-	"context"
 	"strconv"
-	"time"
 
 	"../config"
-	"../model"
 	"github.com/op/go-logging"
 	"github.com/streadway/amqp"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var log = logging.MustGetLogger("messagingqueue_manager")
@@ -32,9 +27,9 @@ func (m *Manager) Init(messagequeue config.MessageQueueConfiguration) error {
 	var conn *amqp.Connection
 	var err error
 
-	m.messagequeue = database
+	m.messagequeue = messagequeue
 	if len(m.messagequeue.Username) > 0 {
-		conn, err = connector.Connect("amqp://" + m.messagequeue.Username + ":" + m.messagequeue.Password + "@" + m.messagequeue.Host + ":" + strconv.Itoa(m.database.Port))
+		conn, err = connector.Connect("amqp://" + m.messagequeue.Username + ":" + m.messagequeue.Password + "@" + m.messagequeue.Host + ":" + strconv.Itoa(m.messagequeue.Port))
 	} else {
 		conn, err = connector.Connect("amqp://" + m.messagequeue.Host + ":" + strconv.Itoa(m.messagequeue.Port))
 	}
@@ -66,83 +61,21 @@ func (m *Manager) Init(messagequeue config.MessageQueueConfiguration) error {
 
 }
 
-//Save saves element to the database
-func (m *Manager) Save(employee model.Employee) error {
+//Publish publishes messages to messgaing queue
+func (m *Manager) Publish(message string) error {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	_, err := m.collection.InsertOne(ctx, bson.M{"_id": employee.ID, "FirstName": employee.FirstName, "LastName": employee.LastName, "Age": employee.Age, "Sex": employee.Sex})
+	err := m.channel.Publish(
+		"",                   // exchange
+		m.messagequeue.Queue, // routing key
+		false,                // mandatory
+		false,                // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(message),
+		})
 	if err != nil {
-		log.Error("Error inserting element: ", err)
+		log.Error("Error publishing message to queue: ", err)
 		return err
 	}
 	return nil
-}
-
-//Fetch gets the object from database by ID
-func (m *Manager) Fetch(filter map[string]interface{}) (*model.Employee, error) {
-	var e bson.M
-	var employee model.Employee
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	err := m.collection.FindOne(ctx, filter).Decode(&e)
-	if err != nil {
-		log.Error("Error fetching element: ", err)
-		return nil, err
-	}
-	employee = model.Employee{ID: e["_id"].(int32), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)}
-	return &employee, nil
-}
-
-//Find retrieves objects from database by query criteria
-func (m *Manager) Find(filter map[string]interface{}, opt *options.FindOptions) (*[]model.Employee, error) {
-	var employees []model.Employee
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	cur, err := m.collection.Find(ctx, filter, opt)
-	if err != nil {
-		log.Error("Error finding elements: ", err)
-		return nil, err
-	}
-	defer cur.Close(ctx)
-	for cur.Next(ctx) {
-
-		var e bson.M
-		err := cur.Decode(&e)
-		if err != nil {
-			log.Error("Error decoding object: ", err)
-		}
-		employees = append(employees, model.Employee{ID: e["_id"].(int32), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)})
-	}
-	if err := cur.Err(); err != nil {
-		log.Error("Error database cursor : ", err)
-		return nil, err
-	}
-	return &employees, nil
-}
-
-func (m *Manager) FindEmployeeIds(filter map[string]interface{}, opt *options.FindOptions) (*[]int32, error) {
-	var employeesids []int32
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	cur, err := m.collection.Find(ctx, filter, opt)
-	if err != nil {
-		log.Error("Error finding elements: ", err)
-		return nil, err
-	}
-	defer cur.Close(ctx)
-	for cur.Next(ctx) {
-
-		var e bson.M
-		err := cur.Decode(&e)
-		if err != nil {
-			log.Error("Error decoding object: ", err)
-		}
-		employeesids = append(employeesids, e["_id"].(int32))
-	}
-	if err := cur.Err(); err != nil {
-		log.Error("Error database cursor : ", err)
-		return nil, err
-	}
-	return &employeesids, nil
 }

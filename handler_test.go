@@ -12,6 +12,7 @@ import (
 	"./cache"
 	"./config"
 	"./database"
+	"./messagingqueue"
 	"./model"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/require"
@@ -55,7 +56,7 @@ func Test1(t *testing.T) {
 	}
 
 	//Load messaging queue manager
-	var mqManager messgingqueue.Manager
+	var mqManager messagingqueue.Manager
 	err = mqManager.Init(configuration.Rabbit)
 	if err != nil {
 		log.Error("Error while loading message queue manager: ", err)
