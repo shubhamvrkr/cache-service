@@ -19,9 +19,11 @@ var employees = [4]model.Employee{
 	model.Employee{ID: 782979, FirstName: "Bob", LastName: "Smith", Age: 29, Sex: "M"},
 }
 
+//default local configuration
 var localconfiguration = &config.Configuration{
 	Database: config.DatabaseConfiguration{Host: "localhost", Port: 27017, Username: "", Password: "", Name: "mydatabase"},
 	Cache:    config.CacheConfiguration{Memory: 256},
+	Rabbit:   config.MessageQueueConfiguration{Host: "localhost", Port: 5672, Username: "", Password: "", Queue: "events"},
 	Server:   config.ServerConfiguration{Port: 8080},
 }
 

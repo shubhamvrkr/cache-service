@@ -92,7 +92,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Successful operation",
             "schema": {
               "$ref": "#/definitions/Response"
             }
@@ -129,7 +129,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Sucessfull operation",
+            "description": "Successfull operation",
             "schema": {
               "$ref": "#/definitions/Employee"
             }
@@ -139,6 +139,30 @@
           },
           "404": {
             "description": "Employee not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/reload": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Reloads the cache from database",
+        "description": "Triggers a message to MQ on which server reloads the cache from database",
+        "operationId": "reload",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucessfully triggered reload",
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
           },
           "500": {
             "description": "Internal server error"

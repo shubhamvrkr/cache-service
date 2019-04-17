@@ -18,8 +18,8 @@ func (c *Connector) Connect(uri string) (*amqp.Connection, error) {
 	if err != nil {
 		log.Error("Error connecting messing queue: ", err)
 		return nil, err
+		defer conn.Close()
 	}
-	defer conn.Close()
 	return conn, err
 }
 
@@ -30,7 +30,7 @@ func (c *Connector) Retry() (*amqp.Connection, error) {
 	if err != nil {
 		log.Error("Error connecting messing queue: ", err)
 		return nil, err
+		defer conn.Close()
 	}
-	defer conn.Close()
 	return conn, err
 }

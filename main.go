@@ -58,6 +58,13 @@ func main() {
 	// Declare a new router
 	r := LoadRouter(h)
 	handler := cors.Default().Handler(r)
+
+	msgs := mqManager.Consume()
+	select {
+	case msg := <-msgs:
+		log.Info("Recieved: ", string(msg.Body))
+	}
+
 	log.Info("Server runnning on port: ", strconv.Itoa(configuration.Server.Port))
 	http.ListenAndServe(":"+strconv.Itoa(configuration.Server.Port), handler)
 

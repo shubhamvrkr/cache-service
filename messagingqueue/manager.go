@@ -43,7 +43,6 @@ func (m *Manager) Init(messagequeue config.MessageQueueConfiguration) error {
 		log.Info("Error creating channel: ", err)
 		return err
 	}
-	m.channel = ch
 	_, err = ch.QueueDeclare(
 		messagequeue.Queue, // name
 		false,              // durable
@@ -56,7 +55,7 @@ func (m *Manager) Init(messagequeue config.MessageQueueConfiguration) error {
 		log.Info("Error creating queue: ", err)
 		return err
 	}
-	defer ch.Close()
+	m.channel = ch
 	return nil
 
 }
@@ -78,4 +77,22 @@ func (m *Manager) Publish(message string) error {
 		return err
 	}
 	return nil
+}
+
+//Consume consumes messages from the queue
+func (m *Manager) Consume() <-chan amqp.Delivery {
+
+	msgs, err := m.channel.Consume(
+		m.messagequeue.Queue, // queue
+		"",                   // consumer
+		true,                 // auto-ack
+		false,                // exclusive
+		false,                // no-local
+		false,                // no-wait
+		nil,                  // args
+	)
+	if err != nil {
+		log.Error("Error consuming message: ", err)
+	}
+	return msgs
 }
