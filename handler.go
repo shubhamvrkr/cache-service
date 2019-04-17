@@ -49,6 +49,7 @@ func (h *Handler) addEmployee(w http.ResponseWriter, r *http.Request) {
 	h.cacheManager.AddItem(employee)
 
 	//return sucess
+	log.Info("Employee added sucessfully: ", employee)
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Employee saved successfully")
 }
@@ -72,7 +73,7 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 		//case: data not found in cache or some internal error
 		log.Info("Error getting data from cache: ", err)
 		//get data from database
-		employee, err := h.dbManager.Fetch(bson.M{"_id": employeeID})
+		employee, err = h.dbManager.Fetch(bson.M{"_id": employeeID})
 		if err != nil {
 			log.Error("Error fetching data from database: ", err)
 			if strings.ContainsAny(err.Error(), "no documents") {
@@ -82,7 +83,6 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-
 		} else {
 			//add data to cache
 			h.cacheManager.AddItem(*employee)
@@ -130,7 +130,7 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 		log.Error("Error fetching data from database: ", err)
 		if strings.ContainsAny(err.Error(), "no documents") {
 			response.Employees = []model.Employee{}
-			resBytes,_ := json.Marshal(response)
+			resBytes, _ := json.Marshal(response)
 			w.WriteHeader(http.StatusOK)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(resBytes)
@@ -144,7 +144,9 @@ func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	//need to check if this is last page
 	employees := h.FindEmployee(*emps)
 	response.Employees = *employees
-	response.Next = "/employee/sex/" + sex + "?lastid=" + strconv.Itoa(int(response.Employees[len(response.Employees)-1].ID)) + "&limit=" + strconv.Itoa(int(limit))
+	if len(response.Employees) > 0 {
+		response.Next = "/employee/sex/" + sex + "?lastid=" + strconv.Itoa(int(response.Employees[len(response.Employees)-1].ID)) + "&limit=" + strconv.Itoa(int(limit))
+	}
 	resBytes, err := json.Marshal(response)
 	if err != nil {
 		log.Error("Error marshalling emp: ", err)
@@ -162,6 +164,7 @@ func (h *Handler) FindEmployee(empids []int32) *[]model.Employee {
 	var emp *model.Employee
 	var err error
 	for _, empid := range empids {
+		log.Info("Getting data for ID: ", empid)
 		emp, err = h.cacheManager.GetItem(empid)
 		if err != nil {
 			//case: data not found in cache or some internal error
@@ -172,4 +175,10 @@ func (h *Handler) FindEmployee(empids []int32) *[]model.Employee {
 		employees = append(employees, *emp)
 	}
 	return &employees
+}
+
+//Swagger return the swagger API documentation
+func (h *Handler) Swagger(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	http.ServeFile(w, r, "swagger.json")
 }

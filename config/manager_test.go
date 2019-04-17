@@ -9,7 +9,7 @@ import (
 
 //default local configuration
 var localconfiguration = &Configuration{
-	Database: DatabaseConfiguration{Host: "192.168.99.100", Port: 27017, Username: "", Password: "", Name: "mydatabase"},
+	Database: DatabaseConfiguration{Host: "localhost", Port: 27017, Username: "", Password: "", Name: "mydatabase"},
 	Cache:    CacheConfiguration{Memory: 256},
 	Server:   ServerConfiguration{Port: 8080},
 }

@@ -10,6 +10,7 @@ import (
 	"./database"
 	"github.com/gorilla/mux"
 	logging "github.com/op/go-logging"
+	"github.com/rs/cors"
 )
 
 var log = logging.MustGetLogger("main")
@@ -49,9 +50,10 @@ func main() {
 
 	// Declare a new router
 	r := LoadRouter(h)
-
-	http.ListenAndServe(":"+strconv.Itoa(configuration.Server.Port), r)
+	handler := cors.Default().Handler(r)
 	log.Info("Server runnning on port: ", strconv.Itoa(configuration.Server.Port))
+	http.ListenAndServe(":"+strconv.Itoa(configuration.Server.Port), handler)
+
 }
 
 //LoadRouter returns a router instance
@@ -61,5 +63,7 @@ func LoadRouter(h Handler) *mux.Router {
 	router.HandleFunc("/employee", h.addEmployee).Methods("POST")
 	router.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
 	router.Path("/employee").Queries("sex", "{sex}").Queries("lastid", "{lastid}").Queries("limit", "{limit}").HandlerFunc(h.getEmployeeBySex).Methods("GET")
+	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("./dist")))
+	router.PathPrefix("/swaggerui/").Handler(sh)
 	return router
 }

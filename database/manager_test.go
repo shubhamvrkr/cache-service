@@ -20,7 +20,7 @@ var employees = [4]model.Employee{
 }
 
 var localconfiguration = &config.Configuration{
-	Database: config.DatabaseConfiguration{Host: "192.168.99.100", Port: 27017, Username: "", Password: "", Name: "mydatabase"},
+	Database: config.DatabaseConfiguration{Host: "localhost", Port: 27017, Username: "", Password: "", Name: "mydatabase"},
 	Cache:    config.CacheConfiguration{Memory: 256},
 	Server:   config.ServerConfiguration{Port: 8080},
 }

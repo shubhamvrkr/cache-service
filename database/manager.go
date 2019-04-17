@@ -103,7 +103,6 @@ func (m *Manager) Find(filter map[string]interface{}, opt *options.FindOptions) 
 		if err != nil {
 			log.Error("Error decoding object: ", err)
 		}
-		log.Info("E: ", e)
 		employees = append(employees, model.Employee{ID: e["_id"].(int32), FirstName: e["FirstName"].(string), LastName: e["LastName"].(string), Age: int(e["Age"].(int32)), Sex: e["Sex"].(string)})
 	}
 	if err := cur.Err(); err != nil {
@@ -130,7 +129,6 @@ func (m *Manager) FindEmployeeIds(filter map[string]interface{}, opt *options.Fi
 		if err != nil {
 			log.Error("Error decoding object: ", err)
 		}
-		log.Info("E: ", e)
 		employeesids = append(employeesids, e["_id"].(int32))
 	}
 	if err := cur.Err(); err != nil {
