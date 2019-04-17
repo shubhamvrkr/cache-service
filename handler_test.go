@@ -120,7 +120,7 @@ func Test6GetEmployeesWithPagination(t *testing.T) {
 
 }
 
-func Test7TriggerReload(t *testing.T) {
+func Test8TriggerReload(t *testing.T) {
 
 	request, _ := http.NewRequest("GET", "/reload", nil)
 	response := httptest.NewRecorder()

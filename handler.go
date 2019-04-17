@@ -197,4 +197,15 @@ func (h *Handler) TriggerReloadEvent(w http.ResponseWriter, r *http.Request) {
 //ReloadCache prepolulates cache with the data from the database
 func (h *Handler) ReloadCache() {
 	log.Info("Reloading cache data")
+	option := options.FindOptions{}
+	emps, err := h.dbManager.Find(bson.M{}, &option)
+	if err != nil {
+		log.Error("Error getting data from database")
+	}
+	for _, emp := range *emps {
+		err = h.cacheManager.AddItem(emp)
+		if err != nil {
+			log.Error("Error adding data to cache: ", emp)
+		}
+	}
 }
