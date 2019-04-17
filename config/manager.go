@@ -25,6 +25,11 @@ var (
 	serverPort       = "SERVER_PORT"
 	databaseName     = "DATABASE_NAME"
 	cacheMem         = "CACHE_MEM"
+	mqHost           = "MQ_HOST"
+	mqPort           = "MQ_PORT"
+	mqUsername       = "MQ_USERNAME"
+	mqPassword       = "MQ_PASSWORD"
+	mqQueue          = "MQ_QUEUE"
 )
 
 //Manager loads the configuration from specfied yaml configfile
@@ -122,6 +127,37 @@ func (m *Manager) Load(filepath string, configtype string) (*Configuration, erro
 		}
 		configuration.Cache.Memory = mem
 	}
+	//Check mq host
+	val, ok = os.LookupEnv(mqHost)
+	if ok {
+		configuration.Rabbit.Host = val
+	}
+	//Check mq port
+	val, ok = os.LookupEnv(mqPort)
+	if ok {
+
+		port, err := strconv.Atoi(val)
+		if err != nil {
+			log.Error("Unable to parse port<string> into port<uint8>, %v", err)
+			return nil, err
+		}
+		configuration.Rabbit.Port = port
+	}
+	//Check mq username
+	val, ok = os.LookupEnv(mqUsername)
+	if ok {
+		configuration.Rabbit.Username = val
+	}
+	//check mq password
+	val, ok = os.LookupEnv(mqPassword)
+	if ok {
+		configuration.Rabbit.Password = val
+	}
+	//Check mq queue
+	val, ok = os.LookupEnv(mqQueue)
+	if ok {
+		configuration.Rabbit.Queue = val
+	}
 
 	log.Info("Database Configuration")
 	log.Info("Host: ", configuration.Database.Host)
@@ -130,6 +166,12 @@ func (m *Manager) Load(filepath string, configtype string) (*Configuration, erro
 	log.Info("Password: ", configuration.Database.Password)
 	log.Info("Cache Configuration")
 	log.Info("Memory: ", configuration.Cache.Memory)
+	log.Info("Message Queue Configuration")
+	log.Info("Host: ", configuration.Rabbit.Host)
+	log.Info("Port: ", configuration.Rabbit.Port)
+	log.Info("Username: ", configuration.Rabbit.Username)
+	log.Info("Password: ", configuration.Rabbit.Password)
+	log.Info("Queue: ", configuration.Rabbit.Queue)
 	log.Info("Server Configuration")
 	log.Info("Port: ", configuration.Server.Port)
 	fmt.Println()

@@ -8,6 +8,7 @@ import (
 	"./cache"
 	"./config"
 	"./database"
+	"./messagingqueue"
 	"github.com/gorilla/mux"
 	logging "github.com/op/go-logging"
 	"github.com/rs/cors"
@@ -41,12 +42,18 @@ func main() {
 	err = cacheManager.Init(configuration.Cache)
 	if err != nil {
 		log.Error("Error while loading cache manager: ", err)
-		os.Exit(3)
+	}
+
+	//Load messaging queue manager
+	var mqManager messagingqueue.Manager
+	err = mqManager.Init(configuration.Rabbit)
+	if err != nil {
+		log.Error("Error while loading message queue manager: ", err)
 	}
 
 	//handler for API
 	var h Handler
-	h.Init(dbManager, cacheManager)
+	h.Init(dbManager, cacheManager, mqManager)
 
 	// Declare a new router
 	r := LoadRouter(h)
@@ -60,9 +67,10 @@ func main() {
 func LoadRouter(h Handler) *mux.Router {
 	router := mux.NewRouter()
 	//declare routes
-	router.HandleFunc("/employee", h.addEmployee).Methods("POST")
-	router.HandleFunc("/employee/{id}", h.getEmployeeByID).Methods("GET")
-	router.Path("/employee").Queries("sex", "{sex}").Queries("lastid", "{lastid}").Queries("limit", "{limit}").HandlerFunc(h.getEmployeeBySex).Methods("GET")
+	router.HandleFunc("/employee", h.AddEmployee).Methods("POST")
+	router.HandleFunc("/employee/{id}", h.GetEmployeeByID).Methods("GET")
+	router.HandleFunc("/reload", h.ReloadCache).Methods("GET")
+	router.Path("/employee").Queries("sex", "{sex}").Queries("lastid", "{lastid}").Queries("limit", "{limit}").HandlerFunc(h.GetEmployeeBySex).Methods("GET")
 	sh := http.StripPrefix("/swaggerui/", http.FileServer(http.Dir("./dist")))
 	router.PathPrefix("/swaggerui/").Handler(sh)
 	return router

@@ -7,7 +7,13 @@ database:
 
 cache:
   memory: 256
-  crs:  "LRU"
+
+rabbit:
+  host: "localhost"
+  port: 5672
+  username: ""
+  password: ""
+  queue: "events"
 
 server:
   port: 8080

@@ -9,6 +9,7 @@ import (
 
 	"./cache"
 	"./database"
+	"./messagingqueue"
 	"./model"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,16 +20,18 @@ import (
 type Handler struct {
 	dbManager    database.Manager
 	cacheManager cache.Manager
+	mqManager    messagingqueue.Manager
 }
 
 //Init initialized database manager and cache manager
-func (h *Handler) Init(dbManager database.Manager, cacheManager cache.Manager) {
+func (h *Handler) Init(dbManager database.Manager, cacheManager cache.Manager, mqManager messagingqueue.Manager) {
 	h.dbManager = dbManager
 	h.cacheManager = cacheManager
+	h.mqManager = mqManager
 }
 
-//addEmployee adds the employee in database and also to the cache
-func (h *Handler) addEmployee(w http.ResponseWriter, r *http.Request) {
+//AddEmployee adds the employee in database and also to the cache
+func (h *Handler) AddEmployee(w http.ResponseWriter, r *http.Request) {
 
 	var employee model.Employee
 	//read request body
@@ -54,8 +57,8 @@ func (h *Handler) addEmployee(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Employee saved successfully")
 }
 
-//getEmployeeByID returns the employee details. First it checks in the cache and the in the dataabase if cache miss
-func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
+//GetEmployeeByID returns the employee details. First it checks in the cache and the in the dataabase if cache miss
+func (h *Handler) GetEmployeeByID(w http.ResponseWriter, r *http.Request) {
 	var employee *model.Employee
 
 	vars := mux.Vars(r)
@@ -99,8 +102,8 @@ func (h *Handler) getEmployeeByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(empBytes)
 }
 
-//getEmployeeBySex returns employees details based on the sex. (i.e M/F)
-func (h *Handler) getEmployeeBySex(w http.ResponseWriter, r *http.Request) {
+//GetEmployeeBySex returns employees details based on the sex. (i.e M/F)
+func (h *Handler) GetEmployeeBySex(w http.ResponseWriter, r *http.Request) {
 	var response model.Response
 	vars := mux.Vars(r)
 	sex := vars["sex"]
@@ -177,8 +180,7 @@ func (h *Handler) FindEmployee(empids []int32) *[]model.Employee {
 	return &employees
 }
 
-//Swagger return the swagger API documentation
-func (h *Handler) Swagger(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	http.ServeFile(w, r, "swagger.json")
+//ReloadCache sends an event to kafka brokers, the event is recieved by a listiner and reload the cache
+func (h *Handler) ReloadCache(w http.ResponseWriter, r *http.Request) {
+
 }

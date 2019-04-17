@@ -1,6 +1,6 @@
 package config
 
-//DatabaseConfiguration holds the configuration for the database
+//CacheConfiguration holds the configuration for the cache
 type CacheConfiguration struct {
 	//Memory to be reserved for caching
 	Memory int

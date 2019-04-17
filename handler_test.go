@@ -53,9 +53,18 @@ func Test1(t *testing.T) {
 		log.Error("Error while loading cache manager: ", err)
 		os.Exit(3)
 	}
+
+	//Load messaging queue manager
+	var mqManager messgingqueue.Manager
+	err = mqManager.Init(configuration.Rabbit)
+	if err != nil {
+		log.Error("Error while loading message queue manager: ", err)
+	}
+
 	//handler for API
 	var h Handler
-	h.Init(dbManager, cacheManager)
+	h.Init(dbManager, cacheManager, mqManager)
+
 	// Declare a new router
 	router = LoadRouter(h)
 }

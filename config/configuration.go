@@ -6,6 +6,8 @@ type Configuration struct {
 	Database DatabaseConfiguration
 	//Holds cache configuration
 	Cache CacheConfiguration
+	//Rabbit configuration
+	Rabbit MessageQueueConfiguration
 	//Holds server configuration
 	Server ServerConfiguration
 }

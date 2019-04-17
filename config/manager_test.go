@@ -11,6 +11,7 @@ import (
 var localconfiguration = &Configuration{
 	Database: DatabaseConfiguration{Host: "localhost", Port: 27017, Username: "", Password: "", Name: "mydatabase"},
 	Cache:    CacheConfiguration{Memory: 256},
+	Rabbit:   MessageQueueConfiguration{Host: "localhost", Port: 5672, Username: "", Password: "", Queue: "events"},
 	Server:   ServerConfiguration{Port: 8080},
 }
 
@@ -18,6 +19,7 @@ var localconfiguration = &Configuration{
 var envconfiguration = &Configuration{
 	Database: DatabaseConfiguration{Host: "10.55.22.196", Port: 37017, Username: "shubham", Password: "verekar", Name: "mydatabase"},
 	Cache:    CacheConfiguration{Memory: 512},
+	Rabbit:   MessageQueueConfiguration{Host: "10.55.22.196", Port: 5672, Username: "shubham", Password: "verekar", Queue: "events"},
 	Server:   ServerConfiguration{Port: 9090},
 }
 
@@ -46,6 +48,11 @@ func TestEnvConfiguration(t *testing.T) {
 	os.Setenv(databaseName, "mydatabase")
 	os.Setenv(serverPort, "9090")
 	os.Setenv(cacheMem, "512")
+	os.Setenv(mqHost, "10.55.22.196")
+	os.Setenv(mqPort, "5672")
+	os.Setenv(mqUsername, "shubham")
+	os.Setenv(mqPassword, "verekar")
+	os.Setenv(mqQueue, "events")
 
 	var configManager Manager
 	configuration, _ := configManager.Load("", "yaml")
