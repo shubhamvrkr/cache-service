@@ -208,4 +208,5 @@ func (h *Handler) ReloadCache() {
 			log.Error("Error adding data to cache: ", emp)
 		}
 	}
+	log.Info("Reloaded cache data")
 }
