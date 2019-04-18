@@ -22,7 +22,7 @@ _______________________________________________________
 
 ### Architecture
 
-![Architecture](docs/arch.png)
+![](docs/arch.PNG)
 
 The cache service contains multiple packages. Each package contains test case script written that can be executed by running
 ```` go test ```` command. Below is the description of each package
