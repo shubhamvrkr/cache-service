@@ -41,6 +41,8 @@ The cache service contains multiple packages. Each package contains test case sc
   - GET employee by ID: Hits the cache for employee details, if miss loads from database and update cache, if cache hit directly returns employee.
   - Get employee by Gender: Gets list of employee IDs matching the query criteria, loads employee details for each from cache, if not present in cache loads from database and update caches, finally return details of all employees
   - Trigger event: submits a reload event in the messaging queue which is listened by an listener on which data in the cache is being loaded from database
+- #### Perfomance-Metrics
+  - This folder contains benchmarking result for post and get call on cache service layer using jmeter tool. (Note: The service and jmeter was being run on same machine. services were run in docker host ( 4vcpu, 4GB Ram allocated for docker) and jmeter on local host)
  ________________________________________________________
 ## How to try
 
